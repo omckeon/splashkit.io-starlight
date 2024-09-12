@@ -23,12 +23,23 @@ In SplashKit, you can programmatically create JSON objects and arrays, which the
 <Tabs syncKey="code-language">
 <TabItem label="C++">
 
-  ```cpp
-  json new_game_data = create_json();
-  json_set_string(new_game_data, "gameTitle", "My New Game");
-  json_set_bool(new_game_data, "fullScreenMode", false);
-  json_set_number(new_game_data, "numPlayers", 1);
-  ```
+```cpp
+json new_game_data = create_json();
+json_set_string(new_game_data, "gameTitle", "My New Game");
+json_set_bool(new_game_data, "fullScreenMode", false);
+json_set_number(new_game_data, "numPlayers", 1);
+```
+
+</TabItem>
+
+<TabItem label="C#">
+
+```csharp
+Json newGameData = CreateJson();
+JsonSetString(newGameData, "gameTitle", "My New Game");
+JsonSetBool(newGameData, "fullScreenMode", false);
+JsonSetNumber(newGameData, "numPlayers", 1);
+```
 
 </TabItem>
 </Tabs>
@@ -38,15 +49,31 @@ First we create the new JSON object using [Create Json](/api/json/#create-json),
 <Tabs syncKey="code-language">
 <TabItem label="C++">
 
-  ```cpp
-  vector<string> levels_array;
+```cpp
+vector<string> levels_array;
 
-  levels_array.push_back("level1");
-  levels_array.push_back("level2");
-  levels_array.push_back("level3");
+levels_array.push_back("level1");
+levels_array.push_back("level2");
+levels_array.push_back("level3");
 
-  json_set_array(new_game_data, "levels", levels_array);
-  ```
+json_set_array(new_game_data, "levels", levels_array);
+```
+
+</TabItem>
+
+<TabItem label="C#">
+
+```csharp
+List<string> levelsArray = new List<string>
+
+{
+    "level1",
+    "level2",
+    "level3"
+};
+
+JsonSetArray(newGameData, "levels", levelsArray);
+```
 
 </TabItem>
 </Tabs>
@@ -56,14 +83,26 @@ Next we add the levels array to the JSON object. We create a vector to store the
 <Tabs syncKey="code-language">
 <TabItem label="C++">
   
-  ```cpp
-  json screen_size_data = create_json();
+```cpp
+json screen_size_data = create_json();
 
-  json_set_number(screen_size_data, "width", 800);
-  json_set_number(screen_size_data, "height", 600);
+json_set_number(screen_size_data, "width", 800);
+json_set_number(screen_size_data, "height", 600);
 
-  json_set_object(new_game_data, "screenSize", screen_size_data);
-  ```
+json_set_object(new_game_data, "screenSize", screen_size_data);
+```
+
+</TabItem>
+
+<TabItem label="C#">
+
+```csharp
+Json screenSizeData = CreateJson();
+JsonSetNumber(screenSizeData, "width", 800);
+JsonSetNumber(screenSizeData, "height", 600);
+
+JsonSetObject(newGameData, "screenSize", screenSizeData);
+```
 
 </TabItem>
 </Tabs>
@@ -77,10 +116,19 @@ Now that we have the `new_game_data` object that stores the same values as the J
 <Tabs syncKey="code-language">
 <TabItem label="C++">
 
-  ```cpp
-  json_to_file(new_game_data, "new_game_data.json");
-  ```
-  
+```cpp
+json_to_file(new_game_data, "new_game_data.json");
+```
+
+</TabItem>
+
+<TabItem label="C#">
+
+```csharp
+JsonToFile(newGameData, "new_game_data.json");
+
+```
+
 </TabItem>
 </Tabs>
 
@@ -89,37 +137,73 @@ By combining all these examples we can create the full program shown below.
 <Tabs syncKey="code-language">
 <TabItem label="C++">
 
-  ```cpp
-  #include "splashkit.h"
+```cpp
+#include "splashkit.h"
 
-  int main() 
-  {
-      json new_game_data = create_json();
+int main() 
+{
+    json new_game_data = create_json();
 
-      json_set_string(new_game_data, "gameTitle", "My New Game");
-      json_set_bool(new_game_data, "fullScreenMode", false);
-      json_set_number(new_game_data, "numPlayers", 1);
+    json_set_string(new_game_data, "gameTitle", "My New Game");
+    json_set_bool(new_game_data, "fullScreenMode", false);
+    json_set_number(new_game_data, "numPlayers", 1);
 
-      json screen_size_data = create_json();
+    json screen_size_data = create_json();
 
-      json_set_number(screen_size_data, "width", 800);
-      json_set_number(screen_size_data, "height", 600);
+    json_set_number(screen_size_data, "width", 800);
+    json_set_number(screen_size_data, "height", 600);
 
-      json_set_object(new_game_data, "screenSize", screen_size_data);
+    json_set_object(new_game_data, "screenSize", screen_size_data);
 
-      vector<string> levels_array;
+    vector<string> levels_array;
 
-      levels_array.push_back("level1");
-      levels_array.push_back("level2");
-      levels_array.push_back("level3");
+    levels_array.push_back("level1");
+    levels_array.push_back("level2");
+    levels_array.push_back("level3");
 
-      json_set_array(new_game_data, "levels", levels_array);
+    json_set_array(new_game_data, "levels", levels_array);
 
-      json_to_file(new_game_data, "new_game_data.json");
+    json_to_file(new_game_data, "new_game_data.json");
 
-      free_all_json();
-  }
-  ```
+    free_all_json();
+}
+```
+
+</TabItem>
+
+<TabItem label="C#">
+
+```csharp
+using SplashKitSDK;
+using static SplashKitSDK.SplashKit;
+using System.Collections.Generic;
+
+Json newGameData = CreateJson();
+
+JsonSetString(newGameData, "gameTitle", "My New Game");
+JsonSetBool(newGameData, "fullScreenMode", false);
+JsonSetNumber(newGameData, "numPlayers", 1);
+
+Json screenSizeData = CreateJson();
+JsonSetNumber(screenSizeData, "width", 800);
+JsonSetNumber(screenSizeData, "height", 600);
+
+JsonSetObject(newGameData, "screenSize", screenSizeData);
+
+List<string> levelsArray = new List<string>
+{
+    "level1",
+    "level2",
+    "level3"
+};
+
+JsonSetArray(newGameData, "levels", levelsArray);
+
+JsonToFile(newGameData, "new_game_data.json");
+
+FreeJson(newGameData);
+FreeJson(screenSizeData);
+```
 
 </TabItem>
 </Tabs>
@@ -152,18 +236,34 @@ You can also load an existing JSON file, modify its contents, and save the chang
 <Tabs syncKey="code-language">
 <TabItem label="C++">
 
-  ```cpp
-  json player_data = create_json();
-  json_set_string(player_data, "name", "Hero");
+```cpp
+json player_data = create_json();
+json_set_string(player_data, "name", "Hero");
 
-  json stats_data = create_json();
-  json_set_number(stats_data, "health", 100);
-  json_set_number(stats_data, "mana", 50);
-  json_set_number(stats_data, "strength", 75);
+json stats_data = create_json();
+json_set_number(stats_data, "health", 100);
+json_set_number(stats_data, "mana", 50);
+json_set_number(stats_data, "strength", 75);
 
-  json_set_object(player_data, "stats", stats_data);
-  ```
-  
+json_set_object(player_data, "stats", stats_data);
+```
+
+</TabItem>
+
+<TabItem label="C#">
+
+```csharp
+Json playerData = CreateJson();
+JsonSetString(playerData, "name", "Hero");
+
+Json statsData = CreateJson();
+JsonSetNumber(statsData, "health", 100);
+JsonSetNumber(statsData, "mana", 50);
+JsonSetNumber(statsData, "strength", 75);
+
+JsonSetObject(playerData, "stats", statsData);
+```
+
 </TabItem>
 </Tabs>
 
@@ -172,12 +272,22 @@ First we create the player JSON object to store the data for an entire character
 <Tabs syncKey="code-language">
 <TabItem label="C++">
 
-  ```cpp
-  json existing_data = json_from_file("new_game_data.json")
-  json_set_object(existing_data, "character", player_data);
+```cpp
+json existing_data = json_from_file("new_game_data.json")
+json_set_object(existing_data, "character", player_data);
 
-  json_to_file(existing_data, "modified_game_data.json");
-  ```
+json_to_file(existing_data, "modified_game_data.json");
+```
+
+</TabItem>
+
+<TabItem label="C#">
+
+```csharp
+Json existingData = JsonFromFile("new_game_data.json");
+JsonSetObject(existingData, "character", playerData);
+JsonToFile(existingData, "modified_game_data.json");
+```
 
 </TabItem>
 </Tabs>
@@ -214,17 +324,32 @@ Now we have a character object stored with this JSON file. We also now have mult
 <Tabs syncKey="code-language">
 <TabItem label="C++">
 
-  ```cpp
-  // Load our JSON
-  json modified_game_data = json_from_file("modified_game_data.json");
-  // Retrieve Character JSON object from the file.
-  json character = json_read_object(modified_game_data, "character");
-  // Retrieve the Stats JSON object from the Character JSON
-  json stats = json_read_object(character, "stats");
-  // Retrieve the value of health from the stats JSON object
-  int hp = json_read_number_as_int(stats, "health");
-  ```
-  
+```cpp
+// Load our JSON
+json modified_game_data = json_from_file("modified_game_data.json");
+// Retrieve Character JSON object from the file.
+json character = json_read_object(modified_game_data, "character");
+// Retrieve the Stats JSON object from the Character JSON
+json stats = json_read_object(character, "stats");
+// Retrieve the value of health from the stats JSON object
+int hp = json_read_number_as_int(stats, "health");
+```
+
+</TabItem>
+
+<TabItem label="C#">
+
+```csharp
+// Load our JSON
+Json modifiedGameData = JsonFromFile("modified_game_data.json");
+// Retrieve Character JSON object from the file.
+Json modifiedGameData = JsonFromFile("modified_game_data.json");
+// Retrieve the Stats JSON object from the Character JSON
+Json stats = JsonReadObject(character, "stats");
+// Retrieve the value of health from the stats JSON object
+int hp = JsonReadNumberAsInt(stats, "health");
+```
+
 </TabItem>
 </Tabs>
 
