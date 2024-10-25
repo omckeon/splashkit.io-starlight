@@ -129,8 +129,9 @@ let apiJsonData = getJsonData();
 let categories = getApiCategories(apiJsonData);
 
 categories.forEach((categoryKey) => {
-  let categoryPath = './public/usage-examples-files/' + categoryKey;
-  const categoryFiles = getAllFiles(categoryPath);
+  let categoryPath = '/usage-examples-files/' + categoryKey;
+  let categoryFilePath = './public/usage-examples-files/' + categoryKey;
+  const categoryFiles = getAllFiles(categoryFilePath);
   const txtFiles = categoryFiles.filter(file => file.endsWith('.txt'))
 
   // Start of each page creation
@@ -191,9 +192,12 @@ categories.forEach((categoryKey) => {
           let exampleKey = exampleTxtKey.replaceAll(".txt", "");
 
           // -----------------------------------
+          // ========= TESTING =================
+          // -----------------------------------
           // Testing that all files are included for filename (terminal argument)
           if (testFileName == exampleKey) {
-            // Define required files (image/gif separate)
+
+            // Define required code files
             const requiredCodeFiles = {
               ".cpp": "C++\t\t",
               "-top-level.cs": "C# (Top-Level)",
@@ -201,6 +205,7 @@ categories.forEach((categoryKey) => {
               ".py": "Python\t",
               // ".pas": "Pascal",
             };
+            
             let exampleFiles = categoryFiles.filter(file => file.startsWith(exampleKey));
 
             console.log(kleur.magenta("Testing") + kleur.cyan(" -> " + testFileName) + "\n");
@@ -231,7 +236,7 @@ categories.forEach((categoryKey) => {
           // -----------------------------------
 
           // Description
-          let txtFilePath = categoryPath + "/" + functionKey + "/" + exampleTxtKey;
+          let txtFilePath = categoryFilePath + "/" + functionKey + "/" + exampleTxtKey;
           let exampleTxt = fs.readFileSync(txtFilePath);
           mdxContent += "\n";
           mdxContent += exampleTxt.toString();
@@ -245,13 +250,13 @@ categories.forEach((categoryKey) => {
           };
 
           // import code
-          let codePath = categoryPath + "/" + functionKey;
+          let codePath = categoryFilePath + "/" + functionKey;
           const codeFiles = getAllFiles(codePath);
           let importTitle = exampleKey.replaceAll("-", "_");
 
           languageOrder.forEach((lang) => {
             const languageFiles = codeFiles.filter(file => file.endsWith(languageFileExtensions[lang]));
-            let codeFilePath = categoryPath + "/" + functionKey + "/" + exampleTxtKey.replaceAll(".txt", languageFileExtensions[lang]);
+            let codeFilePath = categoryFilePath + "/" + functionKey + "/" + exampleTxtKey.replaceAll(".txt", languageFileExtensions[lang]);
 
             // import code if available
             if (languageFiles.length > 0) {
