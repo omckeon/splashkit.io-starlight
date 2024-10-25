@@ -75,6 +75,7 @@ iframe[id="stackblitz-iframe"] {
 /* --- START: Link Button styling ------*/
 
 [data-has-hero] .hero .sl-link-button {
+  padding: 1rem 1.25rem;
   border: 3px solid transparent;
   position: relative;
   overflow: hidden;
@@ -87,7 +88,7 @@ iframe[id="stackblitz-iframe"] {
 
 [data-has-hero] .hero .sl-link-button.minimal {
   background-color: var(--sk-logo-orange);
-  padding: 1rem 1.25rem;
+  /* padding: 1rem 1.25rem; */
 }
 
 [data-has-hero] .hero .sl-link-button.secondary {
