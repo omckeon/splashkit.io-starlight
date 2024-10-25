@@ -78,20 +78,22 @@
 /* --- END: Card styling ------*/
 
 /* --- START: Link card styling ------*/
-.sl-link-card {
+.sl-markdown-content .sl-link-card {
   border: 1px solid var(--sl-logo-orange);
-  box-shadow: 0px 0px 5px var(--sl-logo-orange);
+  box-shadow: 0px 0px 5px var(--sl-logo-orange) !important;
   background-color: var(--sl-logo-orange-transparent);
+
   .description {
     color: var(--sl-color-gray-2);
   }
 }
 
 /* Hover effects */
-.sl-link-card:hover {
+.sl-markdown-content .sl-link-card:hover {
   border: 1px solid var(--sl-logo-blue);
-  box-shadow: 0px 0px 10px var(--sl-logo-blue);
+  box-shadow: 0px 0px 10px var(--sl-logo-blue) !important;
   background-color: var(--sl-logo-orange-transparent);
+
   .description {
     color: var(--sl-color-gray-1);
   }
