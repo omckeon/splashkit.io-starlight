@@ -24,10 +24,8 @@ const languageFileExtensions = {
 
 const languageOrder = ["cpp", "csharp", "python"];//, "pascal"];
 
-var name;
-
 function getJsonData() {
-  var data = fs.readFileSync(`${__dirname}/api.json`);
+  let data = fs.readFileSync(`${__dirname}/api.json`);
   return JSON.parse(data);
 }
 
@@ -53,6 +51,11 @@ function getFunctionGroups(categoryKey, jsonData) {
   return functionNames;
 }
 
+function getCategoryDescription(categoryKey, jsonData) {
+  const category = jsonData[categoryKey];
+  return category.brief.replace(/\n/g, '');
+}
+
 function getAllFiles(dir, allFilesList = []) {
   const files = fs.readdirSync(dir);
   files.map(file => {
@@ -67,9 +70,9 @@ function getAllFiles(dir, allFilesList = []) {
 }
 
 function getFunctionLink(jsonData, groupNameToCheck, uniqueNameToCheck) {
-  var isOverloaded;
-  var functionIndex = -1;
-  var functionLink = "";
+  let isOverloaded;
+  let functionIndex = -1;
+  let functionLink = "";
   for (const categoryKey in jsonData) {
     const category = jsonData[categoryKey];
     const categoryFunctions = category.functions;
@@ -108,15 +111,18 @@ function getFunctionLink(jsonData, groupNameToCheck, uniqueNameToCheck) {
 // Start of Main Script
 // ===============================================================================
 
-console.log(kleur.white("Generating MDX files for Usage Examples pages..."));
-console.log(kleur.white("---------------------------------------"));
+console.log("------------------------------------------------");
+console.log("Generating MDX files for Usage Examples pages...");
+console.log("------------------------------------------------\n");
 
-let checkFunction = "";
 
-if (process.argv[2] != null)
-{
-  checkFunction = process.argv[2];
-  console.log(kleur.magenta("Checking function: ") + kleur.cyan(process.argv[2]));
+let name;
+let success = true;
+let successOutput = "";
+let testFileName = "";
+
+if (process.argv[2] != null) {
+  testFileName = process.argv[2];
 }
 
 let apiJsonData = getJsonData();
@@ -139,6 +145,7 @@ categories.forEach((categoryKey) => {
     name = categoryTitle;
     mdxContent += "---\n";
     mdxContent += `title: ${categoryTitle}\n`;
+    mdxContent += `description: ${getCategoryDescription(categoryKey, apiJsonData)}\n`;
     mdxContent += "banner:\n";
     mdxContent += `  content: Check out how to use the ${categoryTitle} functions!\n`;
     mdxContent += "---\n\n";
@@ -156,7 +163,7 @@ categories.forEach((categoryKey) => {
     // get function info
     let functions = getUniqueFunctionNames(categoryKey, apiJsonData);
     let functionIndex = 0;
-    var groupName = "";
+    let groupName = "";
     functions.forEach((functionKey) => {
       const functionExampleFiles = txtFiles.filter(file => file.startsWith(functionKey + '-'));
       groupName = functionGroups[functionIndex];
@@ -170,7 +177,7 @@ categories.forEach((categoryKey) => {
 
         // Create Function Example heading with link
         const functionURL = getFunctionLink(apiJsonData, groupName, functionKey);
-        mdxContent += `\n## [${functionTitle}](/api/${categoryURL}/#${functionURL.replaceAll("_", "-")}) Examples*\n\n`;
+        mdxContent += `\n## [${functionTitle}](/api/${categoryURL}/#${functionURL.replaceAll("_", "-")})\n\n`;
 
         // Function signature heading (possible need to update)
         const signature = apiJsonData[categoryKey].functions.map((func) => func.signature)[functionIndex].replaceAll(";", "");
@@ -183,6 +190,46 @@ categories.forEach((categoryKey) => {
         functionExampleFiles.forEach((exampleTxtKey) => {
           let exampleKey = exampleTxtKey.replaceAll(".txt", "");
 
+          // -----------------------------------
+          // Testing that all files are included for filename (terminal argument)
+          if (testFileName == exampleKey) {
+            // Define required files (image/gif separate)
+            const requiredCodeFiles = {
+              ".cpp": "C++\t\t",
+              "-top-level.cs": "C# (Top-Level)",
+              "-oop.cs": "C# (Object-Oriented)",
+              ".py": "Python\t",
+              // ".pas": "Pascal",
+            };
+            let exampleFiles = categoryFiles.filter(file => file.startsWith(exampleKey));
+
+            console.log(kleur.magenta("Testing") + kleur.cyan(" -> " + testFileName) + "\n");
+
+            // Text file - check already done above
+            console.log(kleur.green("\u2705 Text Description\t -> ") + kleur.white(testFileName + ".txt"));
+
+            // Check for output file (.png or .gif)
+            if (exampleFiles.includes(testFileName + ".png")) {
+              console.log(kleur.green("\u2705 Image\t\t -> ") + kleur.white(testFileName + ".png"));
+            } else if (exampleFiles.includes(testFileName + ".gif")) {
+              console.log(kleur.green("\u2705 Image (Gif)\t\t -> ") + kleur.white(testFileName + ".gif"));
+            } else {
+              console.log(kleur.red("\u274C Missing\t\t -> ") + kleur.white(testFileName + " .png or .gif file"));
+            }
+
+            // Check code files
+            Object.keys(requiredCodeFiles).forEach(function (extension) {
+              if (exampleFiles.includes(testFileName + extension)) {
+                console.log(kleur.green("\u2705 " + requiredCodeFiles[extension] + "\t -> ") + kleur.white(testFileName + extension));
+              } else {
+                console.log(kleur.red("\u274C Missing\t\t -> ") + kleur.white(testFileName + extension));
+              }
+            });
+
+            console.log("\n------------------------------------------------\n");
+          }
+          // -----------------------------------
+
           // Description
           let txtFilePath = categoryPath + "/" + functionKey + "/" + exampleTxtKey;
           let exampleTxt = fs.readFileSync(txtFilePath);
@@ -190,7 +237,7 @@ categories.forEach((categoryKey) => {
           mdxContent += exampleTxt.toString();
           mdxContent += "\n\n";
 
-          var languageCodeAvailable = {
+          let languageCodeAvailable = {
             cpp: false,
             csharp: false,
             python: false,
@@ -225,8 +272,6 @@ categories.forEach((categoryKey) => {
                 });
               }
               else {
-                // console.log(codeFilePath);
-                
                 mdxContent += `import ${importTitle}_${lang} from '${codeFilePath}?raw';\n`;
               }
             }
@@ -249,7 +294,6 @@ categories.forEach((categoryKey) => {
                 // use reverse order to make Top level first
                 csharpFiles.slice().reverse().forEach(file => {
                   if (file.includes(exampleKey)) {
-                    // console.log(file);
                     if (file.includes("-top-level")) {
                       mdxContent += `    <TabItem label="Top-level Statements">\n`;
                       mdxContent += `      <Code code={${importTitle}_top_level_${lang}} lang="${lang}" />\n`;
@@ -266,7 +310,6 @@ categories.forEach((categoryKey) => {
                 mdxContent += "  </TabItem>\n";
               }
               else {
-                // console.log(importTitle);
                 mdxContent += `    <Code code={${importTitle}_${lang}} lang="${lang}" />\n`;
                 mdxContent += "  </TabItem>\n";
               }
@@ -278,19 +321,19 @@ categories.forEach((categoryKey) => {
           // Image or gif output
           mdxContent += "**Output**:\n\n";
 
-          // const outputFiles = getAllFiles('./public/usage-examples-images-gifs/' + categoryKey);
           const imageFiles = categoryFiles.filter(file => file.endsWith(exampleKey + '.png'));
-          let outputFilePath;
+          let outputFilePath = categoryPath + "/" + functionKey + "/" + exampleTxtKey;
+
           if (imageFiles.length > 0) {
-            outputFilePath = categoryPath + "/" + exampleTxtKey.replaceAll(".txt", ".png");
+            outputFilePath = outputFilePath.replaceAll(".txt", ".png");
           }
           else {
             const gifFiles = categoryFiles.filter(file => file.endsWith('.gif'));
             if (gifFiles.length > 0) {
-              outputFilePath = categoryPath + "/" + exampleTxtKey.replaceAll(".txt", ".gif");
+              outputFilePath = outputFilePath.replaceAll(".txt", ".gif");
             }
             else {
-              console.log(kleur.red("Error: No image or gif files found for " + exampleKey + "usage example"));
+              console.log(kleur.red("\nError: No image or gif files found for " + exampleKey + "usage example"));
             }
           }
 
@@ -302,14 +345,22 @@ categories.forEach((categoryKey) => {
     });
 
     // Write the MDX file
-    fs.writeFile(`./src/content/docs/usage-examples/${name}.mdx`, mdxContent, (err) => {
-      if (err) {
-        console.log(kleur.red(`Error writing ${categoryKey} MDX file: ${err.message}`));
-      } else {
-        console.log(kleur.yellow('Usage Examples') + kleur.green(` -> ${categoryKey}`));
-
-      }
-    });
+    try {
+      fs.writeFileSync(`./src/content/docs/usage-examples/${name}.mdx`, mdxContent);
+      successOutput += kleur.yellow('Usage Examples') + kleur.green(` -> ${categoryKey.split("_")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")}\n`);
+    } catch (err) {
+      success = false;
+      successOutput += kleur.red(`Error writing ${categoryKey} MDX file: `) + `${err.message}\n`;
+    }
   }
 });
-console.log(kleur.green("All usage-example MDX files generated successfully.\n"));
+
+// Check if all MDX files generated successfully
+if (success) {
+  console.log(successOutput);
+  console.log(kleur.green("All Usage Example MDX files generated successfully.\n"));
+} else {
+  console.log(kleur.red("Usage-example MDX files generation unsuccessful. Resolve errors above and try again.\n"));
+}
