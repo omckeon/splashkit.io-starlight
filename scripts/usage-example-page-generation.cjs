@@ -14,7 +14,15 @@ const languageLabelMappings = {
   // Add more mappings as needed
 };
 
-const languageOrder = ["cpp", "csharp"];//, "python", "pascal"];
+// Define language file extensions
+const languageFileExtensions = {
+  cpp: ".cpp",
+  csharp: ".cs",
+  python: ".py",
+  pascal: ".pas"
+};
+
+const languageOrder = ["cpp", "csharp", "python"];//, "pascal"];
 
 var name;
 
@@ -96,15 +104,30 @@ function getFunctionLink(jsonData, groupNameToCheck, uniqueNameToCheck) {
   return functionLink;
 }
 
-console.log(`Generating MDX files for usage-examples`);
+// ===============================================================================
+// Start of Main Script
+// ===============================================================================
+
+console.log(kleur.white("Generating MDX files for Usage Examples pages..."));
+console.log(kleur.white("---------------------------------------"));
+
+let checkFunction = "";
+
+if (process.argv[2] != null)
+{
+  checkFunction = process.argv[2];
+  console.log(kleur.magenta("Checking function: ") + kleur.cyan(process.argv[2]));
+}
+
 let apiJsonData = getJsonData();
 let categories = getApiCategories(apiJsonData);
 
 categories.forEach((categoryKey) => {
-  let categoryPath = './src/assets/usage-examples-code/' + categoryKey;
+  let categoryPath = './public/usage-examples-files/' + categoryKey;
   const categoryFiles = getAllFiles(categoryPath);
   const txtFiles = categoryFiles.filter(file => file.endsWith('.txt'))
 
+  // Start of each page creation
   if (txtFiles.length > 0) {
     let mdxContent = "";
 
@@ -161,62 +184,113 @@ categories.forEach((categoryKey) => {
           let exampleKey = exampleTxtKey.replaceAll(".txt", "");
 
           // Description
-          let txtFilePath = './src/assets/usage-examples-code/' + categoryKey + "/" + functionKey + "/" + exampleTxtKey;
+          let txtFilePath = categoryPath + "/" + functionKey + "/" + exampleTxtKey;
           let exampleTxt = fs.readFileSync(txtFilePath);
           mdxContent += "\n";
           mdxContent += exampleTxt.toString();
           mdxContent += "\n\n";
 
+          var languageCodeAvailable = {
+            cpp: false,
+            csharp: false,
+            python: false,
+            // pascal: false
+          };
+
           // import code
-          let codePath = './src/assets/usage-examples-code/' + categoryKey + "/" + functionKey;
+          let codePath = categoryPath + "/" + functionKey;
           const codeFiles = getAllFiles(codePath);
           let importTitle = exampleKey.replaceAll("-", "_");
-          // C++ file
-          const cppFiles = codeFiles.filter(file => file.endsWith('.cpp'));
-          let cppFilePath = '/src/assets/usage-examples-code/' + categoryKey + "/" + functionKey + "/" + exampleTxtKey.replaceAll(".txt", ".cpp");
-          if (cppFiles.length > 0) {
-            mdxContent += `import ${importTitle}_cpp from '${cppFilePath}?raw';\n`;
-          }
-          // C# file
-          const csharpFiles = codeFiles.filter(file => file.endsWith('.cs'));
-          let csharpFilePath = '/src/assets/usage-examples-code/' + categoryKey + "/" + functionKey + "/" + exampleTxtKey.replaceAll(".txt", ".cs");
-          if (csharpFiles.length > 0) {
-            mdxContent += `import ${importTitle}_csharp from '${csharpFilePath}?raw';\n`;
-          }
-          // Add python and pascal
+
+          languageOrder.forEach((lang) => {
+            const languageFiles = codeFiles.filter(file => file.endsWith(languageFileExtensions[lang]));
+            let codeFilePath = categoryPath + "/" + functionKey + "/" + exampleTxtKey.replaceAll(".txt", languageFileExtensions[lang]);
+
+            // import code if available
+            if (languageFiles.length > 0) {
+              languageCodeAvailable[lang] = true;
+
+              // Check if both top level and oop code has been found for current function
+              const csharpFiles = codeFiles.filter(file => file.endsWith("-top-level.cs") || file.endsWith("-oop.cs")).filter(file => file.includes(exampleKey));
+              if (lang == "csharp" && csharpFiles.length > 0) {
+                csharpFiles.forEach(file => {
+                  if (file.includes(exampleKey)) {
+                    if (file.includes("-top-level")) {
+                      mdxContent += `import ${importTitle}_top_level_${lang} from '${codeFilePath.replaceAll(".cs", "-top-level.cs")}?raw';\n`;
+                    }
+                    if (file.includes("-oop")) {
+                      mdxContent += `import ${importTitle}_oop_${lang} from '${codeFilePath.replaceAll(".cs", "-oop.cs")}?raw';\n`;
+                    }
+                  }
+                });
+              }
+              else {
+                // console.log(codeFilePath);
+                
+                mdxContent += `import ${importTitle}_${lang} from '${codeFilePath}?raw';\n`;
+              }
+            }
+          });
 
           mdxContent += "\n";
 
           // Code tabs
           mdxContent += "<Tabs syncKey=\"code-language\">\n";
           languageOrder.forEach((lang) => {
-
-            if (cppFiles.length > 0) {
+            // add code tab if available
+            if (languageCodeAvailable[lang]) {
               const languageLabel = languageLabelMappings[lang] || lang;
               mdxContent += `  <TabItem label="${languageLabel}">\n`;
-              let cppFilePath = './src/assets/usage-examples-code/' + categoryKey + "/" + functionKey + "/" + exampleTxtKey.replaceAll(".txt", ".cpp");
-              mdxContent += `    <Code code={${importTitle}_${lang}} lang="${lang}" />\n`;
-              mdxContent += "  </TabItem>\n";
+
+              // Check if both top level and oop code has been found for current function
+              const csharpFiles = codeFiles.filter(file => file.endsWith("-top-level.cs") || file.endsWith("-oop.cs")).filter(file => file.includes(exampleKey));
+              if (lang == "csharp" && csharpFiles.length > 0) {
+                mdxContent += "\n  <Tabs syncKey=\"csharp-style\">\n";
+                // use reverse order to make Top level first
+                csharpFiles.slice().reverse().forEach(file => {
+                  if (file.includes(exampleKey)) {
+                    // console.log(file);
+                    if (file.includes("-top-level")) {
+                      mdxContent += `    <TabItem label="Top-level Statements">\n`;
+                      mdxContent += `      <Code code={${importTitle}_top_level_${lang}} lang="${lang}" />\n`;
+                      mdxContent += "    </TabItem>\n";
+                    }
+                    if (file.includes("-oop")) {
+                      mdxContent += `    <TabItem label="Object-Oriented">\n`;
+                      mdxContent += `      <Code code={${importTitle}_oop_${lang}} lang="${lang}" />\n`;
+                      mdxContent += "    </TabItem>\n";
+                    }
+                  }
+                });
+                mdxContent += "  </Tabs>\n\n";
+                mdxContent += "  </TabItem>\n";
+              }
+              else {
+                // console.log(importTitle);
+                mdxContent += `    <Code code={${importTitle}_${lang}} lang="${lang}" />\n`;
+                mdxContent += "  </TabItem>\n";
+              }
             }
+
           });
           mdxContent += "</Tabs>\n\n";
 
           // Image or gif output
           mdxContent += "**Output**:\n\n";
 
-          const outputFiles = getAllFiles('./public/usage-examples-images-gifs/' + categoryKey);
-          const imageFiles = outputFiles.filter(file => file.endsWith(exampleKey + '.png'));
+          // const outputFiles = getAllFiles('./public/usage-examples-images-gifs/' + categoryKey);
+          const imageFiles = categoryFiles.filter(file => file.endsWith(exampleKey + '.png'));
           let outputFilePath;
           if (imageFiles.length > 0) {
-            outputFilePath = '/usage-examples-images-gifs/' + categoryKey + "/" + exampleTxtKey.replaceAll(".txt", ".png");
+            outputFilePath = categoryPath + "/" + exampleTxtKey.replaceAll(".txt", ".png");
           }
           else {
-            const gifFiles = outputFiles.filter(file => file.endsWith('.gif'));
+            const gifFiles = categoryFiles.filter(file => file.endsWith('.gif'));
             if (gifFiles.length > 0) {
-              outputFilePath = '/usage-examples-images-gifs/' + categoryKey + "/" + exampleTxtKey.replaceAll(".txt", ".gif");
+              outputFilePath = categoryPath + "/" + exampleTxtKey.replaceAll(".txt", ".gif");
             }
             else {
-              console.log("No image or gif files found for " + exampleKey + "usage example");
+              console.log(kleur.red("Error: No image or gif files found for " + exampleKey + "usage example"));
             }
           }
 
