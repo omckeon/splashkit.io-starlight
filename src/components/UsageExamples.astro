@@ -6,8 +6,12 @@ interface Frontmatter {
   description?: string;
 }
 
-let posts = await Astro.glob<Frontmatter>("../content/docs/api/*.mdx");
+// Load and filter posts
+let posts = await Astro.glob<Frontmatter>(
+  "../content/docs/usage-examples/*.mdx"
+);
 posts = posts.filter((post) => !post.file.endsWith("index.mdx"));
+posts = posts.filter((post) => !post.file.endsWith("CONTRIBUTING.mdx"));
 
 function simplifyFilePath(filePath: string) {
   // Remove leading and trailing slashes
