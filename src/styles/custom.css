@@ -6,8 +6,8 @@
 :root {
   --purple-hsl: 255, 60%, 60%;
   --overlay-blurple: hsla(var(--purple-hsl), 0.2);
-  --sk-logo-blue: #00ACC1;
-  --sk-logo-orange: #F5A623;
+  --sk-logo-blue: rgba(5, 172, 194, 1);
+  --sk-logo-orange: rgba(246, 166, 34, 1);
   --link-button-border-color: var(--sk-logo-orange);
   --link-hover-button-border-color: var(--sk-logo-blue);
   /* --table-head-color: rgb(35, 38, 47); */
@@ -51,7 +51,7 @@
   backdrop-filter: blur(16px);
 }
 
-[data-has-hero] .hero > img {
+[data-has-hero] .hero>img {
   filter: drop-shadow(0 0 3rem var(--overlay-blurple));
 }
 
@@ -60,7 +60,7 @@ iframe[id="stackblitz-iframe"] {
   min-height: 600px;
 }
 
-[data-has-hero] .hero > div.sl-flex {
+[data-has-hero] .hero>div.sl-flex {
   align-self: flex-start;
 }
 
@@ -72,26 +72,31 @@ iframe[id="stackblitz-iframe"] {
   gap: 1.25rem;
 }
 
+/* --- START: Link Button styling ------*/
+
 [data-has-hero] .hero .sl-link-button {
-  border: 1px solid var(--link-button-border-color);
-  box-shadow: 0px 0px 5px var(--link-button-border-color);
-  /* transition: background-color ease-in-out 0.25s, color 0.3s ease; */
+  border: 3px solid transparent;
   position: relative;
   overflow: hidden;
   cursor: pointer;
 }
 
 [data-has-hero] .hero .sl-link-button:hover {
-  border: 1px solid var(--link-hover-button-border-color);
-  box-shadow: 0px 0px 10px var(--link-hover-button-border-color);
+  border: 3px solid black;
 }
 
-/* [data-has-hero] .hero .sl-link-button.minimal {
-  border: solid 1px var(--sl-color-text-accent);
+[data-has-hero] .hero .sl-link-button.minimal {
+  background-color: var(--sk-logo-orange);
   padding: 1rem 1.25rem;
-} 
+}
 
-[data-has-hero] .hero .sl-link-button::before {
+[data-has-hero] .hero .sl-link-button.secondary {
+  background-color: var(--sk-logo-blue);
+}
+
+/* --- END: Link Button styling ------*/
+
+/* [data-has-hero] .hero .sl-link-button::before {
   content: '';
   position: absolute;
   top: 0;
