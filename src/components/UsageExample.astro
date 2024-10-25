@@ -1,0 +1,232 @@
+---
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
+import fs from "fs";
+import kleur from "kleur";
+
+interface Props {
+  category: string;
+  name: string;
+  filename: string;
+}
+
+// -------------------------------
+// Constants
+const { category, name, filename } = Astro.props;
+
+// Define language label mappings
+const languageLabelMappings: { [key: string]: string } = {
+  cpp: "C++",
+  csharp: "C#",
+  python: "Python",
+  // pascal: "Pascal",
+  // Add more mappings as needed
+};
+
+// Define language file extensions
+const languageFileExtensions: { [key: string]: string } = {
+  cpp: ".cpp",
+  csharp: ".cs",
+  python: ".py",
+  pascal: ".pas",
+};
+
+const languageOrder = ["cpp", "csharp", "python"]; //, "pascal"];
+
+// -------------------------------
+// Functions
+
+// Get text description
+function getTextDescription(category: string, name: string, filename: string) {
+  let mdxContent = "";
+  mdxContent += "\n";
+  mdxContent += fs
+    .readFileSync(
+      "./public/usage-examples-files/" +
+        category +
+        "/" +
+        name +
+        "/" +
+        filename +
+        ".txt"
+    )
+    .toString();
+  mdxContent += "\n\n";
+  return mdxContent;
+}
+
+function getCode(category: string, name: string, filename: string) {
+  let mdxContent = "";
+
+  let languageCodeAvailable: { [key: string]: boolean } = {
+    cpp: false,
+    csharp: false,
+    python: false,
+    // pascal: false
+  };
+
+  // import code
+  const codeFiles = getAllFiles(
+    "./public/usage-examples-files/" + category + "/" + name + "/"
+  );
+  let exampleKey = filename.replaceAll(".txt", "");
+  let importTitle = exampleKey.replaceAll("-", "_");
+
+  languageOrder.forEach((lang) => {
+    const languageFiles = codeFiles.filter((file) =>
+      file.endsWith(languageFileExtensions[lang])
+    );
+    let codeFilePath =
+      "./public/usage-examples-files/" +
+      category +
+      "/" +
+      name +
+      "/" +
+      filename +
+      languageFileExtensions[lang];
+
+    // import code if available
+    if (languageFiles.length > 0) {
+      languageCodeAvailable[lang] = true;
+
+      // Check if both top level and oop code has been found for current function
+      const csharpFiles = codeFiles
+        .filter(
+          (file) => file.endsWith("-top-level.cs") || file.endsWith("-oop.cs")
+        )
+        .filter((file) => file.includes(exampleKey));
+      if (lang == "csharp" && csharpFiles.length > 0) {
+        csharpFiles.forEach((file) => {
+          if (file.includes(exampleKey)) {
+            if (file.includes("-top-level")) {
+              mdxContent += `import ${importTitle}_top_level_${lang} from '${codeFilePath.replaceAll(".cs", "-top-level.cs")}?raw';\n`;
+            }
+            if (file.includes("-oop")) {
+              mdxContent += `import ${importTitle}_oop_${lang} from '${codeFilePath.replaceAll(".cs", "-oop.cs")}?raw';\n`;
+            }
+          }
+        });
+      } else {
+        mdxContent += `import ${importTitle}_${lang} from '${codeFilePath}?raw';\n`;
+      }
+    }
+  });
+
+  mdxContent += "\n";
+
+  // Code tabs
+  mdxContent += '<Tabs syncKey="code-language">\n';
+  languageOrder.forEach((lang) => {
+    // add code tab if available
+    if (languageCodeAvailable[lang]) {
+      const languageLabel = languageLabelMappings[lang] || lang;
+      mdxContent += `  <TabItem label="${languageLabel}">\n`;
+
+      // Check if both top level and oop code has been found for current function
+      const csharpFiles = codeFiles
+        .filter(
+          (file) => file.endsWith("-top-level.cs") || file.endsWith("-oop.cs")
+        )
+        .filter((file) => file.includes(exampleKey));
+      if (lang == "csharp" && csharpFiles.length > 0) {
+        mdxContent += '\n  <Tabs syncKey="csharp-style">\n';
+        // use reverse order to make Top level first
+        csharpFiles
+          .slice()
+          .reverse()
+          .forEach((file) => {
+            if (file.includes(exampleKey)) {
+              if (file.includes("-top-level")) {
+                mdxContent += `    <TabItem label="Top-level Statements">\n`;
+                mdxContent += `      <Code code={${importTitle}_top_level_${lang}} lang="${lang}" />\n`;
+                mdxContent += "    </TabItem>\n";
+              }
+              if (file.includes("-oop")) {
+                mdxContent += `    <TabItem label="Object-Oriented">\n`;
+                mdxContent += `      <Code code={${importTitle}_oop_${lang}} lang="${lang}" />\n`;
+                mdxContent += "    </TabItem>\n";
+              }
+            }
+          });
+        mdxContent += "  </Tabs>\n\n";
+        mdxContent += "  </TabItem>\n";
+      } else {
+        mdxContent += `    <Code code={${importTitle}_${lang}} lang="${lang}" />\n`;
+        mdxContent += "  </TabItem>\n";
+      }
+    }
+  });
+  mdxContent += "</Tabs>\n\n";
+
+  return mdxContent;
+}
+
+function getOutputImage(category: string, name: string, filename: string) {
+  let mdxContent = "";
+  let exampleKey = filename.replaceAll(".txt", "");
+
+  mdxContent += "**Output**:\n\n";
+  const imageFiles = getAllFiles(
+    "./public/usage-examples-files/" + category + "/" + name + "/"
+  ).filter((file) => file.endsWith(exampleKey + ".png"));
+  let outputFilePath =
+    "/public/usage-examples-files/" + category + "/" + name + "/" + filename;
+
+  if (imageFiles.length > 0) {
+    outputFilePath = outputFilePath.replaceAll(".txt", ".png");
+  } else {
+    const gifFiles = getAllFiles(
+      "./public/usage-examples-files/" + category + "/" + name + "/" + filename
+    ).filter((file) => file.endsWith(".gif"));
+    if (gifFiles.length > 0) {
+      outputFilePath = outputFilePath.replaceAll(".txt", ".gif");
+    } else {
+      console.log(
+        kleur.red(
+          "\nError: No image or gif files found for " +
+            exampleKey +
+            " usage example"
+        )
+      );
+    }
+  }
+
+  mdxContent += `![${exampleKey} example](${outputFilePath})\n`;
+  mdxContent += "\n---\n";
+  return mdxContent;
+}
+
+function getAllFiles(dir: string, allFilesList: string[] = []) {
+  const files = fs.readdirSync(dir);
+  files.map((file) => {
+    const name = dir + "/" + file;
+    if (fs.statSync(name).isDirectory()) {
+      // check if subdirectory is present
+      getAllFiles(name, allFilesList); // do recursive execution for subdirectory
+    } else {
+      allFilesList.push(file); // push filename into the array
+    }
+  });
+  return allFilesList;
+}
+
+// Description
+const text = getTextDescription(category, name, filename );
+
+// Code tabs
+const code = getCode(category, name, filename);
+
+// Image or gif output
+const output = getOutputImage(category, name, filename);
+---
+
+{
+  (
+    <div class="splashkit-usage-example">
+      {text}
+      
+      {code}
+
+      {output}
+    </div>
+  )
+}
