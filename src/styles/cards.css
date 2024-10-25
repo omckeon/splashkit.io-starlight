@@ -4,8 +4,10 @@
   --sl-card-background-dark: #333333;
   --sl-hover-text-light: #ffffff;
   --sl-hover-text-dark: #000000;
-  --sl-logo-orange: #F5A623;
-  --sl-logo-blue: #05acc1;
+  --sl-logo-orange: #F6A622;
+  --sl-logo-orange-transparent: rgba(246, 166, 34, 0.18);
+  --sl-logo-blue: #05ACC2;
+  /* --sl-logo-blue-transparent: rgba(5, 172, 194, 0.2); */
   --sl-logo-dark-blue: #3E50B1;
   --gradient-light: rgba(232, 232, 234, 0.18);
   --gradient-dark: rgba(23, 10, 10, 0.18);
@@ -79,7 +81,7 @@
 .sl-link-card {
   border: 1px solid var(--sl-logo-orange);
   box-shadow: 0px 0px 5px var(--sl-logo-orange);
-
+  background-color: var(--sl-logo-orange-transparent);
   .description {
     color: var(--sl-color-gray-2);
   }
@@ -89,7 +91,7 @@
 .sl-link-card:hover {
   border: 1px solid var(--sl-logo-blue);
   box-shadow: 0px 0px 10px var(--sl-logo-blue);
-
+  background-color: var(--sl-logo-orange-transparent);
   .description {
     color: var(--sl-color-gray-1);
   }
