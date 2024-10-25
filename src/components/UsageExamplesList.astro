@@ -14,14 +14,20 @@ posts = posts.filter((post) => !post.file.endsWith("index.mdx"));
 posts = posts.filter((post) => !post.file.endsWith("CONTRIBUTING.mdx"));
 
 // Function to simplify file path
-function simplifyFilePath(filePath: string): string {
+function simplifyFilePath(filePath: string) {
+  // Remove leading and trailing slashes
   filePath = filePath.replace(/^\/|\/$/g, "");
+
+  // Split the path into parts using "/"
   const pathParts = filePath.split("/");
-  const fileFolder = pathParts[pathParts.length - 2];
-  const lastPart = pathParts[pathParts.length - 1];
-  const simplifiedName =
-    fileFolder + "/" + lastPart.split(".").slice(0, -1).join(".");
-  return simplifiedName.toLowerCase();
+
+  // Get the last part of the path (file or directory name)
+  const lastPart = pathParts[pathParts.length - 1].split("%20").join("-");
+
+  // Remove file extension (assuming it's after the last dot in the last part)
+  const simplifiedName = lastPart.split(".").slice(0, -1).join(".");
+
+  return simplifiedName.toLowerCase(); // Convert to lowercase for consistency
 }
 ---
 

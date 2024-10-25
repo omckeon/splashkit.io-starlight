@@ -256,7 +256,7 @@ categories.forEach((categoryKey) => {
 
           languageOrder.forEach((lang) => {
             const languageFiles = codeFiles.filter(file => file.endsWith(languageFileExtensions[lang]));
-            let codeFilePath = categoryFilePath + "/" + functionKey + "/" + exampleTxtKey.replaceAll(".txt", languageFileExtensions[lang]);
+            let codeFilePath = categoryPath + "/" + functionKey + "/" + exampleTxtKey.replaceAll(".txt", languageFileExtensions[lang]);
 
             // import code if available
             if (languageFiles.length > 0) {
@@ -268,16 +268,16 @@ categories.forEach((categoryKey) => {
                 csharpFiles.forEach(file => {
                   if (file.includes(exampleKey)) {
                     if (file.includes("-top-level")) {
-                      mdxContent += `import ${importTitle}_top_level_${lang} from '${codeFilePath.replaceAll(".cs", "-top-level.cs")}?raw';\n`;
+                      mdxContent += `import ${importTitle}_top_level_${lang} from '${codeFilePath.replaceAll(".cs", "-top-level.cs").replaceAll("/usage","/public/usage")}?raw';\n`;
                     }
                     if (file.includes("-oop")) {
-                      mdxContent += `import ${importTitle}_oop_${lang} from '${codeFilePath.replaceAll(".cs", "-oop.cs")}?raw';\n`;
+                      mdxContent += `import ${importTitle}_oop_${lang} from '${codeFilePath.replaceAll(".cs", "-oop.cs").replaceAll("/usage","/public/usage")}?raw';\n`;
                     }
                   }
                 });
               }
               else {
-                mdxContent += `import ${importTitle}_${lang} from '${codeFilePath}?raw';\n`;
+                mdxContent += `import ${importTitle}_${lang} from '${codeFilePath.replaceAll("/usage","/public/usage")}?raw';\n`;
               }
             }
           });
