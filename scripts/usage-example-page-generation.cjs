@@ -9,7 +9,7 @@ const path = require('path');
 const languageLabelMappings = {
   cpp: "C++",
   csharp: "C#",
-  // python: "Python",
+  python: "Python",
   // pascal: "Pascal",
   // Add more mappings as needed
 };
