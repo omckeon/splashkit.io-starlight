@@ -24,11 +24,12 @@ const languageFileExtensions = {
 
 const languageOrder = ["cpp", "csharp", "python"];//, "pascal"];
 
+// Get JSON data from api.json file
 function getJsonData() {
-  let data = fs.readFileSync(`${__dirname}/api.json`);
-  return JSON.parse(data);
+  return JSON.parse(fs.readFileSync(`${__dirname}/api.json`));
 }
 
+// Get a list of the category groups from the json data
 function getApiCategories(jsonData) {
   const apiCategories = [];
   for (const categoryKey in jsonData) {
@@ -39,23 +40,27 @@ function getApiCategories(jsonData) {
   return apiCategories;
 }
 
+// Get a list of all of the unique function names
 function getUniqueFunctionNames(categoryKey, jsonData) {
   const category = jsonData[categoryKey];
   const functionNames = category.functions.map((func) => func.unique_global_name);
   return functionNames;
 }
 
+// Get a list of the function group names (name used for overloaded functions)
 function getFunctionGroups(categoryKey, jsonData) {
   const category = jsonData[categoryKey];
   const functionNames = category.functions.map((func) => func.name);
   return functionNames;
 }
 
+// Get the category description to display on the index page link cards
 function getCategoryDescription(categoryKey, jsonData) {
   const category = jsonData[categoryKey];
   return category.brief.replace(/\n/g, '');
 }
 
+// Search the folders to get a list of paths for all available files in the /public/usage-examples-files/ folder
 function getAllFiles(dir, allFilesList = []) {
   const files = fs.readdirSync(dir);
   files.map(file => {
@@ -63,12 +68,13 @@ function getAllFiles(dir, allFilesList = []) {
     if (fs.statSync(name).isDirectory()) { // check if subdirectory is present
       getAllFiles(name, allFilesList);     // do recursive execution for subdirectory
     } else {
-      allFilesList.push(file);           // push filename into the array
+      allFilesList.push(file);             // push filename into the array
     }
   })
   return allFilesList;
 }
 
+// Create function link to match with functions in the API Documentation pages
 function getFunctionLink(jsonData, groupNameToCheck, uniqueNameToCheck) {
   let isOverloaded;
   let functionIndex = -1;
@@ -119,19 +125,21 @@ console.log("------------------------------------------------\n");
 let name;
 let success = true;
 let successOutput = "";
-let testFileName = "";
+let fileNameToCheck = "";
 
 if (process.argv[2] != null) {
-  testFileName = process.argv[2];
+  fileNameToCheck = process.argv[2];
 }
 
 let apiJsonData = getJsonData();
 let categories = getApiCategories(apiJsonData);
 
+// Loop through each category to create 1 page per category
 categories.forEach((categoryKey) => {
   let categoryPath = '/usage-examples-files/' + categoryKey;
   let categoryFilePath = './public/usage-examples-files/' + categoryKey;
   const categoryFiles = getAllFiles(categoryFilePath);
+  // Use .txt files to find completed usage examples
   const txtFiles = categoryFiles.filter(file => file.endsWith('.txt'))
 
   // Start of each page creation
@@ -195,7 +203,7 @@ categories.forEach((categoryKey) => {
           // ========= TESTING =================
           // -----------------------------------
           // Testing that all files are included for filename (terminal argument)
-          if (testFileName == exampleKey) {
+          if (fileNameToCheck == exampleKey) {
 
             // Define required code files
             const requiredCodeFiles = {
@@ -205,29 +213,29 @@ categories.forEach((categoryKey) => {
               ".py": "Python\t",
               // ".pas": "Pascal",
             };
-            
+
             let exampleFiles = categoryFiles.filter(file => file.startsWith(exampleKey));
 
-            console.log(kleur.magenta("Testing") + kleur.cyan(" -> " + testFileName) + "\n");
+            console.log(kleur.magenta("Testing") + kleur.cyan(" -> " + fileNameToCheck) + "\n");
 
             // Text file - check already done above
-            console.log(kleur.green("\u2705 Text Description\t -> ") + kleur.white(testFileName + ".txt"));
+            console.log(kleur.green("\u2705 Text Description\t -> ") + kleur.white(fileNameToCheck + ".txt"));
 
             // Check for output file (.png or .gif)
-            if (exampleFiles.includes(testFileName + ".png")) {
-              console.log(kleur.green("\u2705 Image\t\t -> ") + kleur.white(testFileName + ".png"));
-            } else if (exampleFiles.includes(testFileName + ".gif")) {
-              console.log(kleur.green("\u2705 Image (Gif)\t\t -> ") + kleur.white(testFileName + ".gif"));
+            if (exampleFiles.includes(fileNameToCheck + ".png")) {
+              console.log(kleur.green("\u2705 Image\t\t -> ") + kleur.white(fileNameToCheck + ".png"));
+            } else if (exampleFiles.includes(fileNameToCheck + ".gif")) {
+              console.log(kleur.green("\u2705 Image (Gif)\t\t -> ") + kleur.white(fileNameToCheck + ".gif"));
             } else {
-              console.log(kleur.red("\u274C Missing\t\t -> ") + kleur.white(testFileName + " .png or .gif file"));
+              console.log(kleur.red("\u274C Missing\t\t -> ") + kleur.white(fileNameToCheck + " .png or .gif file"));
             }
 
             // Check code files
             Object.keys(requiredCodeFiles).forEach(function (extension) {
-              if (exampleFiles.includes(testFileName + extension)) {
-                console.log(kleur.green("\u2705 " + requiredCodeFiles[extension] + "\t -> ") + kleur.white(testFileName + extension));
+              if (exampleFiles.includes(fileNameToCheck + extension)) {
+                console.log(kleur.green("\u2705 " + requiredCodeFiles[extension] + "\t -> ") + kleur.white(fileNameToCheck + extension));
               } else {
-                console.log(kleur.red("\u274C Missing\t\t -> ") + kleur.white(testFileName + extension));
+                console.log(kleur.red("\u274C Missing\t\t -> ") + kleur.white(fileNameToCheck + extension));
               }
             });
 
@@ -268,16 +276,16 @@ categories.forEach((categoryKey) => {
                 csharpFiles.forEach(file => {
                   if (file.includes(exampleKey)) {
                     if (file.includes("-top-level")) {
-                      mdxContent += `import ${importTitle}_top_level_${lang} from '${codeFilePath.replaceAll(".cs", "-top-level.cs").replaceAll("/usage","/public/usage")}?raw';\n`;
+                      mdxContent += `import ${importTitle}_top_level_${lang} from '${codeFilePath.replaceAll(".cs", "-top-level.cs").replaceAll("/usage", "/public/usage")}?raw';\n`;
                     }
                     if (file.includes("-oop")) {
-                      mdxContent += `import ${importTitle}_oop_${lang} from '${codeFilePath.replaceAll(".cs", "-oop.cs").replaceAll("/usage","/public/usage")}?raw';\n`;
+                      mdxContent += `import ${importTitle}_oop_${lang} from '${codeFilePath.replaceAll(".cs", "-oop.cs").replaceAll("/usage", "/public/usage")}?raw';\n`;
                     }
                   }
                 });
               }
               else {
-                mdxContent += `import ${importTitle}_${lang} from '${codeFilePath.replaceAll("/usage","/public/usage")}?raw';\n`;
+                mdxContent += `import ${importTitle}_${lang} from '${codeFilePath.replaceAll("/usage", "/public/usage")}?raw';\n`;
               }
             }
           });
