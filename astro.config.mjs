@@ -7,8 +7,8 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://splashkit.io/',
-  // base: '/splashkit.io-starlight',  // if hosted without domain.
+  site: 'https://splashkit.github.io/',
+  base: '/splashkit.io-starlight',  // if hosted without domain.
   //   output: "server",
   //   adapter: netlify(),
   integrations: [

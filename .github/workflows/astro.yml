@@ -20,6 +20,9 @@ jobs:
         run: |
           npm install
           npm run generate-mdx
+          npm run generate-usage-examples-pages
+          npm run generate-groups
+          astro build
       - name: Upload your site
         uses: withastro/action@v1
 
@@ -32,4 +35,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
