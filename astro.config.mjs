@@ -8,7 +8,7 @@ import sitemap from "@astrojs/sitemap";
 // https://astro.build/config
 export default defineConfig({
   site: 'https://splashkit.github.io/',
-  // base: '/splashkit.io-starlight',  // if hosted without domain.
+  base: '/splashkit.io-starlight',  // if hosted without domain.
   // output: 'static',
   // outDir: './dist',
   // build: {

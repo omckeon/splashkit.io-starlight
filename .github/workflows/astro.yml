@@ -16,13 +16,7 @@ jobs:
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
-      - name: Install dependencies and build
-        run: |
-          npm install
-          npm run generate-mdx
-          npm run generate-usage-examples-pages
-          npm run generate-groups
-      - name: Upload your site
+      - name: Install dependencies, build and upload
         uses: withastro/action@v3
 
   deploy:
