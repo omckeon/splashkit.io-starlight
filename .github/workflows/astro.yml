@@ -22,7 +22,7 @@ jobs:
           npm run generate-mdx
           npm run generate-usage-examples-pages
           npm run generate-groups
-          astro build
+          npm run build
       - name: Upload your site
         uses: withastro/action@v1
 
