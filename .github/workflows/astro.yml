@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install dependencies and build
         run: |
           npm install
@@ -23,7 +23,7 @@ jobs:
           npm run generate-usage-examples-pages
           npm run generate-groups
       - name: Upload your site
-        uses: withastro/action@v1
+        uses: withastro/action@v4
 
   deploy:
     needs: build
