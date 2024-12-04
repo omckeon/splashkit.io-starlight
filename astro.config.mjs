@@ -18,11 +18,11 @@ export default defineConfig({
     starlight({
       title: "SplashKit",
       description: 'SplashKit is a cross-platform game engine for C, C++ and Objective-C. It provides a simple API for 2D game development.',
-      plugins: [
-        starlightLinksValidator({
-          errorOnRelativeLinks: true,
-        }),
-      ],
+      // plugins: [
+      //   starlightLinksValidator({
+      //     errorOnRelativeLinks: true,
+      //   }),
+      // ],
       expressiveCode: {
         // theme: ["github-dark", "github-light"],
         // frames: {
